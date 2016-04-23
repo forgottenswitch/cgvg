@@ -1,8 +1,9 @@
 #!/bin/sh
 
-PROG="cg"
+PROG=cg
 
 tempfile="/tmp/.cgvg.$USER"
+tempfile_raw="/tmp/.cgvg.raw.$USER"
 
 error() { echo "$@" > /dev/stderr; }
 
@@ -11,6 +12,21 @@ usage() {
   error " Usage: cg ..."
   error "        vg N"
   error " Arguments are passed to ag."
+  error " If there are none, the last search is shown."
+}
+
+test "(" "$1" = "-h" ")" -o "(" "$1" = "--help" ")" && {
+  usage
+  exit
+}
+
+test -z "$1" && {
+  test -e "$tempfile_raw" || {
+    usage
+    exit 1
+  }
+  cat "$tempfile_raw"
+  exit
 }
 
 nocolor() {
@@ -19,7 +35,9 @@ nocolor() {
 
 results=$(ag --color "$@")
 linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
-echo "$results" | nl
+raw=$(echo "$results" | nl)
 
+echo "$raw"
+echo "$raw" > "$tempfile_raw"
 echo "$linefiles" | nocolor > "$tempfile"
 
