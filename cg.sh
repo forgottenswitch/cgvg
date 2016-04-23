@@ -33,7 +33,14 @@ nocolor() {
   sed -e "s/[^mK]*[mK]//g"
 }
 
-results=$(ag --color "$@")
+results=$(ag --color \
+  --ignore "*.out" \
+  --ignore "README*" --ignore "[Rr]eadme*" \
+  --ignore-dir "CMakeFiles" --ignore "CMakeCache.txt" \
+  --ignore "CHANGELOG*" --ignore "[Cc]hange[Ll]og*" \
+  --ignore "COPYING*" --ignore "LICENSE*" \
+  --ignore "*.ts" \
+  "$@")
 linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
 raw=$(echo "$results" | nl)
 
