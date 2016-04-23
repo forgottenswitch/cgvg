@@ -1,6 +1,9 @@
 #!/bin/sh
 
 PROG=cg
+LINES_COLS=$(stty size)
+LINES="${LINES_COLS% *}"
+COLS="${LINES_COLS#* }"
 
 tempfile="/tmp/.cgvg.$USER"
 tempfile_raw="/tmp/.cgvg.raw.$USER"
@@ -15,6 +18,15 @@ usage() {
   error " If there are none, the last search is shown."
 }
 
+count_lines() {
+  local i=0
+  while read -r
+  do
+    i=$((i+1))
+  done
+  echo "$i"
+}
+
 test "(" "$1" = "-h" ")" -o "(" "$1" = "--help" ")" && {
   usage
   exit
@@ -25,7 +37,12 @@ test -z "$1" && {
     usage
     exit 1
   }
-  cat "$tempfile_raw"
+  raw=$(cat "$tempfile_raw")
+  nlines=$(echo "$raw" | count_lines)
+  if test "$nlines" -lt "$LINES"
+  then echo "$raw"
+  else echo "$raw" | less -R
+  fi
   exit
 }
 
@@ -44,7 +61,11 @@ results=$(ag --color \
 linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
 raw=$(echo "$results" | nl)
 
-echo "$raw"
+nlines=$(echo "$linefiles" | count_lines)
+if test "$nlines" -lt "$LINES"
+then echo "$raw"
+else echo "$raw" | less -R
+fi
 echo "$raw" > "$tempfile_raw"
 echo "$linefiles" | nocolor > "$tempfile"
 
