@@ -15,12 +15,22 @@ usage() {
 
 test -z "$n" && { usage; exit 1; }
 
+n_is_not_a_number=""
+n1="$n"
+n2="$n"
+while test ! -z "$n1"
+do
+  n2="${n1#[0-9]}"
+  test "$n1" = "$n2" && { n_is_not_a_number=y; break; }
+  n1="${n2}"
+done
+
 get_line_nlines() {
   local i=0
   while read -r
   do
     i=$((i+1))
-    test "$i" -eq "$n" && {
+    test "$i" -eq "$n" 2>/dev/null && {
       echo "$REPLY"
     }
   done
@@ -40,7 +50,11 @@ test "$line_nlines" = "1" && {
   possible_n="no results at all"
 }
 
-test "(" "$nlines" -lt 1 ")" -o "(" "$nlines" -lt "$n" ")" && {
+wrong_n="$n_is_not_a_number"
+test -z "$wrong_n" && test "$nlines" -lt 1 && wrong_n=y
+test -z "$wrong_n" && test "$nlines" -lt "$n" && wrong_n=y
+
+test "$wrong_n" = y && {
   usage
   error
   error "$PROG: error: no such N - $n; $possible_n"
