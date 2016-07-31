@@ -57,6 +57,8 @@ results=$(ag --color \
   --ignore "CHANGELOG*" --ignore "[Cc]hange[Ll]og*" \
   --ignore "COPYING*" --ignore "LICENSE*" \
   --ignore "*.ts" \
+  --ignore CVS \
+  --ignore "*.po" \
   "$@")
 linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
 raw=$(echo "$results" | nl)
