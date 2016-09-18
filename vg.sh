@@ -27,7 +27,7 @@ done
 
 get_line_nlines() {
   local i=0
-  while read -r
+  while read -r REPLY
   do
     i=$((i+1))
     test "$i" -eq "$n" 2>/dev/null && {

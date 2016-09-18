@@ -20,7 +20,7 @@ usage() {
 
 count_lines() {
   local i=0
-  while read -r
+  while read -r REPLY
   do
     i=$((i+1))
   done
