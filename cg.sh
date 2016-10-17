@@ -8,7 +8,7 @@ COLS="${LINES_COLS#* }"
 tempfile="/tmp/.cgvg.$USER"
 tempfile_raw="/tmp/.cgvg.raw.$USER"
 
-error() { echo "$@" > /dev/stderr; }
+error() { echo "$@" >&2; }
 
 usage() {
   error "$PROG - search for pattern"

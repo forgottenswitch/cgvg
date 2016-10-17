@@ -6,7 +6,7 @@ test -z "$EDITOR" && EDITOR=vim
 tempfile="/tmp/.cgvg.$USER"
 n="$1"
 
-error() { echo "$@" > /dev/stderr; }
+error() { echo "$@" >&2; }
 
 usage() {
   error "$PROG - go to nth result of cg invocation"
