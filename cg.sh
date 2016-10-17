@@ -20,31 +20,31 @@ usage() {
 
 count_lines() {
   local i=0
-  while read -r REPLY
-  do
+  while read -r REPLY ; do
     i=$((i+1))
   done
   echo "$i"
 }
 
-test "(" "$1" = "-h" ")" -o "(" "$1" = "--help" ")" && {
+if test "(" "$1" = "-h" ")" -o "(" "$1" = "--help" ")" ; then
   usage
   exit
-}
+fi
 
-test -z "$1" && {
-  test -e "$tempfile_raw" || {
+if test -z "$1" ; then
+  if test ! -e "$tempfile_raw" ; then
     usage
     exit 1
-  }
+  fi
   raw=$(cat "$tempfile_raw")
   nlines=$(echo "$raw" | count_lines)
-  if test "$nlines" -lt "$LINES"
-  then echo "$raw"
-  else echo "$raw" | less -R
+  if test "$nlines" -lt "$LINES" ; then
+    echo "$raw"
+  else
+    echo "$raw" | less -R
   fi
   exit
-}
+fi
 
 nocolor() {
   sed -e "s/[^mK]*[mK]//g"
@@ -64,9 +64,10 @@ linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
 raw=$(echo "$results" | nl)
 
 nlines=$(echo "$linefiles" | count_lines)
-if test "$nlines" -lt "$LINES"
-then echo "$raw"
-else echo "$raw" | less -R
+if test "$nlines" -lt "$LINES" ; then
+  echo "$raw"
+else
+  echo "$raw" | less -R
 fi
 echo "$raw" > "$tempfile_raw"
 echo "$linefiles" | nocolor > "$tempfile"

@@ -18,8 +18,7 @@ test -z "$n" && { usage; exit 1; }
 n_is_not_a_number=""
 n1="$n"
 n2="$n"
-while test ! -z "$n1"
-do
+while test ! -z "$n1" ; do
   n2="${n1#[0-9]}"
   test "$n1" = "$n2" && { n_is_not_a_number=y; break; }
   n1="${n2}"
@@ -27,12 +26,11 @@ done
 
 get_line_nlines() {
   local i=0
-  while read -r REPLY
-  do
+  while read -r REPLY ; do
     i=$((i+1))
-    test "$i" -eq "$n" 2>/dev/null && {
+    if test "$i" -eq "$n" 2>/dev/null ; then
       echo "$REPLY"
-    }
+    fi
   done
   echo "$i"
 }
@@ -45,10 +43,10 @@ nlines="${line_nlines#*
 }"
 
 possible_n="1..$nlines only"
-test "$line_nlines" = "1" && {
+if test "$line_nlines" = "1" ; then
   nlines=0
   possible_n="no results at all"
-}
+fi
 
 wrong_n="$n_is_not_a_number"
 test -z "$wrong_n" && test "$nlines" -lt 1 && wrong_n=y
