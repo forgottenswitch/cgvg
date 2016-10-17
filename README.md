@@ -3,6 +3,13 @@ cgvg
 Grep that numbers its results.
 `cg` command searches, `vg` goes-to.
 
+  $ cg while
+      1  cg.sh:23:  while read -r REPLY ; do
+      2  vg.sh:21:while test ! -z "$n1" ; do
+      3  vg.sh:29:  while read -r REPLY ; do
+  $ vg 2
+    # launches EDITOR vg.sh +21
+
 Caveats
 -------
 Does not handle individual files, only directories.
@@ -11,7 +18,7 @@ for rare-and-exotic filetypes, such as `m4`.
 
 Requirements
 ------------
-ag[https://github.com/ggreer/the\_silver\_searcher.git]
+[ag](https://github.com/ggreer/the_silver_searcher.git)
 
 Installation
 ------------
