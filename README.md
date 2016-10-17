@@ -17,7 +17,7 @@ Installation
   * `make install`
 - Per-user:
   * Add `~/bin` to PATH (in `~/.bashrc`-like file)
-  * Do `make user-install`, or manually symlink `cg.sh`/`vg.sh` to `~/bin/cg`/`vg`
+  * `make user-install` (or manually symlink `cg.sh`/`vg.sh` to `~/bin/cg`/`vg`)
 
 License
 -------
