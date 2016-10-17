@@ -3,12 +3,14 @@ cgvg
 Grep that numbers its results.
 `cg` command searches, `vg` goes-to.
 
+```
   $ cg while
       1  cg.sh:23:  while read -r REPLY ; do
       2  vg.sh:21:while test ! -z "$n1" ; do
       3  vg.sh:29:  while read -r REPLY ; do
   $ vg 2
     # launches EDITOR vg.sh +21
+```
 
 Caveats
 -------
