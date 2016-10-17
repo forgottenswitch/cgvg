@@ -24,8 +24,10 @@ Installation
 ------------
 - System-wide:
   * `make install`
+  * Set up default EDITOR (in `/etc/profile`, etc.)
 - Per-user:
   * Add `~/bin` to PATH (in `~/.bashrc`-like file)
+  * Set up default EDITOR (the same file)
   * `make user-install` (or manually symlink `cg.sh`/`vg.sh` to `~/bin/cg`/`vg`)
 
 License

@@ -62,4 +62,4 @@ test "$wrong_n" = y && {
 lineno="${line%% *}"
 file="${line#* }"
 
-exec "$EDITOR" +"$lineno" "$file"
+exec "${EDITOR:-vi}" +"$lineno" "$file"
