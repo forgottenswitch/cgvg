@@ -6,6 +6,8 @@ Grep that numbers its results.
 Caveats
 -------
 Does not handle individual files, only directories.
+Tries to search relevant code only, so `grep -r` might be needed
+for rare-and-exotic filetypes, such as `m4`.
 
 Requirements
 ------------
