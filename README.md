@@ -12,6 +12,8 @@ Grep that numbers its results.
     # launches EDITOR vg.sh +21
 ```
 
+[Original cgvg](http://uzix.org/cgvg.html).
+
 Caveats
 -------
 Tries to search relevant code only, so `grep -r` might be needed
