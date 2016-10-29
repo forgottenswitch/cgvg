@@ -15,7 +15,8 @@ Grep that numbers its results.
 Caveats
 -------
 Tries to search relevant code only, so `grep -r` might be needed
-for rare-and-exotic filetypes, such as `m4`.
+if a file is expected to be generated (`Makefile` in an autotools project,
+an `.m4` or `.po` extension, etc.).
 
 Requirements
 ------------
