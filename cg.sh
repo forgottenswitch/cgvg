@@ -50,6 +50,55 @@ nocolor() {
   sed -e "s/[^mK]*[mK]//g"
 }
 
+arg_count=0
+file_arg_count=0
+dir_arg_count=0
+last_file_arg=""
+
+process_arg() {
+  arg_count=$((arg_count+1))
+  local arg_realpath=$(readlink -m "$1")
+  if test _"$arg_count" = _1 ; then
+    return
+  elif test -d "$arg_realpath" ; then
+    dir_arg_count=$((dir_arg_count+1))
+  else
+    file_arg_count=$((file_arg_count+1))
+    last_file_arg="$1"
+  fi
+}
+
+expecting_arg=n
+in_tail=n
+
+# Follows ag 0.32 manpage
+for arg ; do
+  if test _"$in_tail" = _y ; then
+    process_arg "$arg"
+    continue
+  fi
+  case "$arg" in
+    -A|--after| \
+      -B|--before| \
+      -C|--context| \
+      -g| \
+      -G|--file-search-regex| \
+      --ignore| \
+      --ignore-dir| \
+      --pager \
+      ) expecting_arg=y ;;
+    --) in_tail=y ;;
+    -*) expecting_arg=n ;;
+    *)
+      if test _"$expecting_arg" = _y ; then
+        expecting_arg=n
+      else
+        process_arg "$arg"
+      fi
+      ;;
+  esac
+done
+
 results=$(ag --color \
   --ignore "*.out" \
   --ignore "README*" --ignore "[Rr]eadme*" \
@@ -60,6 +109,11 @@ results=$(ag --color \
   --ignore CVS \
   --ignore "*.po" \
   "$@")
+
+if test _"$file_arg_count" = _1 -a _"$dir_arg_count" = _0 ; then
+  results=$(echo "$results" | while read REPLY ; do echo "${last_file_arg}:$REPLY" ; done)
+fi
+
 linefiles=$(echo "$results" | sed -e "s/^\([^:]*\):\([^:]*\):.*/\2 \1/")
 raw=$(echo "$results" | nl)
 
