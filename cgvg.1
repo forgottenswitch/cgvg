@@ -1,0 +1,60 @@
+.Dd October 30, 2016
+.Os
+.Dt CGVG 1
+.Sh CGVG
+.Nm cgvg
+.Nd grep with numerical goto
+.Pp
+.Sh SYNOPSIS
+.Nm cg
+.Op Fl -dry-run
+.Ar ag_arg...
+.Nm vg
+.Ar N
+.Pp
+.Sh DESCRIPTION
+The \fBcg\fR command searches for text using \fBag\fR(1),
+then numbering results.
+.Pp
+The \fBvg\fR command goes to \fIN\fR-th result, executing the
+program specified in the \fBEDITOR\fR environment variable,
+or \fBvi\fR(1).
+.Pp
+The \fB--dry-run\fR argument to \fBcg\fR tells it to only print
+how the \fBag\fR would be invoked.
+.Pp
+.Sh FILES
+\fBcg\fR reads its configuration from \fI~/.config/cgvg\fR.
+.Pp
+Lines starting with \fI#\fR are comments.
+The first word of a line is considered a directive.
+.Pp
+Valid directives are:
+.Bl -tag -width "ignore-dir"
+.It Em nocolor
+Corresponds to \fBag \fI--nocolor\fR.
+.It Em ignore
+Corresponds to \fBag \fI--ignore\fR. The rest of line is quoted and passed as the next arg.
+.It Em ignore-dir
+Corresponds to \fBag \fI--ignore-dir\fR.
+.El
+.Pp
+.Sh CONFIGURATION EXAMPLE
+.Bd -literal
+ignore *.abc
+ignore-dir .build*
+
+# Do not color output
+nocolor
+.Ed
+.Pp
+.Sh SEE ALSO
+grep(1), ag(1)
+.Pp
+.Sh HISTORY
+Original \fBcgvg\fR was implemented in \fBperl\fR(1).
+.Pp
+.Sh BUGS
+Tries to search relevant code only, so \fBgrep\fI -r\fR might still be needed
+for files expected to be generated, changelogs, translations, etc.
+
