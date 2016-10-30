@@ -16,6 +16,8 @@ usage() {
   error "        vg N"
   error " Arguments are passed to ag."
   error " If there are none, the last search is shown."
+  error " 'cg --dry-run' would only print ag invocation command."
+  error
 }
 
 count_lines() {
@@ -68,6 +70,8 @@ process_arg() {
   fi
 }
 
+dry_run=n
+
 expecting_arg=n
 in_tail=n
 
@@ -88,6 +92,7 @@ for arg ; do
       --pager \
       ) expecting_arg=y ;;
     --) in_tail=y ;;
+    --dry-run) dry_run=y ;;
     -*) expecting_arg=n ;;
     *)
       if test _"$expecting_arg" = _y ; then
@@ -99,7 +104,95 @@ for arg ; do
   esac
 done
 
-results=$(ag --color \
+rc_flags=""
+rc_file="$HOME/.config/cgvg"
+if test -e "$rc_file" 2>/dev/null ; then
+rc_flags=$(cat "$rc_file" 2>/dev/null | awk '
+
+function rest_of_line(s) {
+  sub("^[^ \t]*[ \t]*", "", s);
+  return s
+}
+
+function require_argument() {
+  x = l
+  dir = l
+  gsub("[ \t]*", "", dir)
+  if (rest_of_line(x) == "") {
+    print_error("'"'"'" dir "'"'"' needs an argument")
+  }
+}
+
+function print_error(msg) {
+  print "error:'"$rc_file"':" lineno ": " msg
+}
+
+function out_arg(name, val) {
+  print "--" name " " val " \\"
+  outed_arg = 1
+}
+
+function quote_as_arg(s) {
+  gsub("'"'"'", "&\\\\&&", s);
+  return "'"'"'" s "'"'"'"
+}
+
+BEGIN { lineno = 0; }
+
+{
+  lineno += 1
+  outed_arg = 0
+  l = $0
+  sub("^[ \t]*", "", l)
+  sub("^#.*", "", l)
+}
+
+/^nocolor[ \t]*$/ {
+  out_arg("nocolor", "")
+}
+
+/^ignore($|[ \t])/ {
+  require_argument()
+  out_arg("ignore", quote_as_arg(rest_of_line(l)))
+}
+
+/^ignore-dir($|[ \t])/ {
+  require_argument()
+  out_arg("ignore-dir", quote_as_arg(rest_of_line(l)))
+}
+
+{
+  if (!outed_arg && length(l) != 0) {
+    dir = l
+    sub("[ \t].*", "", dir)
+    print_error("unrecognized directive '"'"'" dir "'"'"'")
+  }
+}
+
+'
+)
+
+echo "$rc_flags" | {
+  while read -r REPLY ; do
+    if test _"${REPLY#error:}" != _"$REPLY" ; then
+      exit 1
+    fi
+  done >/dev/null
+} || {
+  errs=$(echo "$rc_flags" | awk '
+    { }
+    /^error:/ { sub("error:", ""); print; }
+    ')
+  echo "$errs"
+  if echo "$errs" | grep -q "unrecognized dir" ; then
+    echo "See 'man cgvg' for list of valid config file directives."
+  fi
+  exit 1
+}
+
+fi # test -e "$rc_file"
+
+ag_cmd='ag --color \
   --ignore "*.out" \
   --ignore "README*" --ignore "[Rr]eadme*" \
   --ignore-dir "CMakeFiles" --ignore "CMakeCache.txt" \
@@ -108,7 +201,21 @@ results=$(ag --color \
   --ignore "*.ts" \
   --ignore CVS \
   --ignore "*.po" \
-  "$@")
+  '"${rc_flags:-\\}"'
+  "$@"'
+
+if test _"$dry_run" = _y ; then
+  quoted_args=""
+  for arg ; do
+    test _"$arg" = _"--dry-run" && continue
+    quoted_args="$quoted_args '$(echo "$arg" | sed -e "s/'/'\\''/")'"
+  done
+  echo "${ag_cmd%\"\$@\"}${quoted_args# }"
+  echo "# arg counts: $arg_count total, $file_arg_count files, $dir_arg_count directories"
+  exit
+fi
+
+results=$(eval "$ag_cmd")
 
 if test _"$file_arg_count" = _1 -a _"$dir_arg_count" = _0 ; then
   results=$(echo "$results" | while read REPLY ; do echo "${last_file_arg}:$REPLY" ; done)

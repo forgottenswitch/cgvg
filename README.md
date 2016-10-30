@@ -22,7 +22,8 @@ an `.m4` or `.po` extension, etc.).
 
 Requirements
 ------------
-[ag](https://github.com/ggreer/the_silver_searcher.git)
+- awk
+- [ag](https://github.com/ggreer/the_silver_searcher.git)
 
 Installation
 ------------
