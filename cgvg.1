@@ -1,4 +1,4 @@
-.Dd October 30, 2016
+.Dd October 31, 2016
 .Os
 .Dt CGVG 1
 .Sh CGVG
@@ -30,14 +30,32 @@ Lines starting with \fI#\fR are comments.
 The first word of a line is considered a directive.
 Where applicable, the rest of line is quoted and passed as the next arg.
 .Pp
-Valid directives are:
-.Bl -tag -width "ignore-dir" -compact
+Valid directives are (corresponding to \fBag\fR(1) options):
+.Bl -tag -width "path-to-agignore" -compact
+.Pp
+.It Em follow-symlinks
+Corresponds to \fBag\fI -f\fR.
+.It Em path-to-agignore
+.It Em silent
 .It Em ignore
-Corresponds to \fBag \fI--ignore\fR.
 .It Em ignore-dir
-Corresponds to \fBag \fI--ignore-dir\fR.
+.Pp
+.It Em hidden
+.It Em all-types
+.It Em all-text
+.It Em unrestricted
+.It Em skip-vcs-ignores
+.It Em search-zip
+.It Em search-binary
+.Pp
+.It Em depth
+.It Em max-count
+.It Em print-long-lines
+.Pp
 .It Em nocolor
-Corresponds to \fBag \fI--nocolor\fR.
+.It Em color-line-number
+.It Em color-match
+.It Em color-path
 .El
 .Pp
 .Sh CONFIGURATION EXAMPLE

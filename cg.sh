@@ -126,9 +126,28 @@ if test -e "$rc_file" 2>/dev/null ; then
 '
   }
 
+  flag0 follow follow-symlinks
+  flag1 path-to-agignore
+  flag0 silent
   flag1 ignore
   flag1 ignore-dir
+
+  flag0 hidden
+  flag0 all-types
+  flag0 all-text
+  flag0 unrestricted
+  flag0 skip-vcs-ignores
+  flag0 search-zip
+  flag0 search-binary
+
+  flag1 depth
+  flag1 max-count
+  flag0 print-long-lines
+
   flag0 nocolor
+  flag1 color-line-number
+  flag1 color-match
+  flag1 color-path
 
 rc_flags=$(cat "$rc_file" 2>/dev/null | awk '
 
