@@ -107,6 +107,29 @@ done
 rc_flags=""
 rc_file="$HOME/.config/cgvg"
 if test -e "$rc_file" 2>/dev/null ; then
+  flags=""
+  flag0() {
+    local ag_arg="$1" cg_arg="${2:-"$1"}"
+    flags="$flags"'
+/^'"$cg_arg"'[ \t]*$/ {
+  out_arg("'"$ag_arg"'", "")
+}
+'
+  }
+  flag1() {
+    local ag_arg="$1" cg_arg="${2:-"$1"}"
+    flags="$flags"'
+/^'"$cg_arg"'($|[ \t])/ {
+  require_argument()
+  out_arg("'"$ag_arg"'", quote_as_arg(rest_of_line(l)))
+}
+'
+  }
+
+  flag1 ignore
+  flag1 ignore-dir
+  flag0 nocolor
+
 rc_flags=$(cat "$rc_file" 2>/dev/null | awk '
 
 function rest_of_line(s) {
@@ -147,19 +170,9 @@ BEGIN { lineno = 0; }
   sub("^#.*", "", l)
 }
 
-/^nocolor[ \t]*$/ {
-  out_arg("nocolor", "")
-}
-
-/^ignore($|[ \t])/ {
-  require_argument()
-  out_arg("ignore", quote_as_arg(rest_of_line(l)))
-}
-
-/^ignore-dir($|[ \t])/ {
-  require_argument()
-  out_arg("ignore-dir", quote_as_arg(rest_of_line(l)))
-}
+'"
+$flags
+"'
 
 {
   if (!outed_arg && length(l) != 0) {

@@ -28,15 +28,16 @@ how the \fBag\fR would be invoked.
 .Pp
 Lines starting with \fI#\fR are comments.
 The first word of a line is considered a directive.
+Where applicable, the rest of line is quoted and passed as the next arg.
 .Pp
 Valid directives are:
-.Bl -tag -width "ignore-dir"
-.It Em nocolor
-Corresponds to \fBag \fI--nocolor\fR.
+.Bl -tag -width "ignore-dir" -compact
 .It Em ignore
-Corresponds to \fBag \fI--ignore\fR. The rest of line is quoted and passed as the next arg.
+Corresponds to \fBag \fI--ignore\fR.
 .It Em ignore-dir
 Corresponds to \fBag \fI--ignore-dir\fR.
+.It Em nocolor
+Corresponds to \fBag \fI--nocolor\fR.
 .El
 .Pp
 .Sh CONFIGURATION EXAMPLE
