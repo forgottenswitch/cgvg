@@ -8,13 +8,16 @@
 .Sh SYNOPSIS
 .Nm cg
 .Op Fl -dry-run
-.Ar ag_arg...
+.Op Ar ag_arg...
+.Nm cg
+-
+.Op Ar profile...
 .Nm vg
 .Ar N
 .Pp
 .Sh DESCRIPTION
 The \fBcg\fR command searches for text using \fBag\fR(1),
-then numbering results.
+then numbering results. Without args, it recalls the last search.
 .Pp
 The \fBvg\fR command goes to \fIN\fR-th result, executing the
 program specified in the \fBEDITOR\fR environment variable,
@@ -23,12 +26,22 @@ or \fBvi\fR(1).
 The \fB--dry-run\fR argument to \fBcg\fR tells it to only print
 how the \fBag\fR would be invoked.
 .Pp
+.Sh PROFILES
+\fBag\fR options could be grouped into "profiles", to be toggled together.
+Running "\fBcg\fR -" shows list of profiles; further args toggle profile activation.
+.Pp
 .Sh FILES
 \fBcg\fR reads its configuration from \fI~/.config/cgvg\fR.
+If there is none, default one is copied.
 .Pp
 Lines starting with \fI#\fR are comments.
 The first word of a line is considered a directive.
 Where applicable, the rest of line is quoted and passed as the next arg.
+.Pp
+Lines in square brackets (\fI[\fR, \fI]\fR) mean profile name (which should only contain letters, digits, and "-_" characters).
+Directives until another bracketed line would only be active if the profile is.
+Profiles are considered active using the \fIprofile\fR directive
+(which should only appear at the beginning of file).
 .Pp
 Valid directives are (corresponding to \fBag\fR(1) options):
 .Bl -tag -width "path-to-agignore" -compact
