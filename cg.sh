@@ -263,5 +263,6 @@ else
   echo "$raw" | less -R
 fi
 echo "$raw" > "$tempfile_raw"
-echo "$linefiles" | nocolor > "$tempfile"
+echo "$(pwd)
+$linefiles" | nocolor > "$tempfile"
 

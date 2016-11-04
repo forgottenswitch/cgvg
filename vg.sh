@@ -26,6 +26,8 @@ done
 
 get_line_nlines() {
   local i=0
+  read -r REPLY
+  echo "$REPLY"
   while read -r REPLY ; do
     i=$((i+1))
     if test "$i" -eq "$n" 2>/dev/null ; then
@@ -35,12 +37,18 @@ get_line_nlines() {
   echo "$i"
 }
 
-line_nlines=$(cat "$tempfile" | get_line_nlines)
+fstl_line_nlines=$(cat "$tempfile" | get_line_nlines)
 
+firstline="${fstl_line_nlines%%
+*}"
+line_nlines="${fstl_line_nlines#*
+}"
 line="${line_nlines%
 *}"
 nlines="${line_nlines#*
 }"
+
+nlines=$((nlines-1))
 
 possible_n="1..$nlines only"
 if test "$line_nlines" = "1" ; then
@@ -57,6 +65,15 @@ test "$wrong_n" = y && {
   error
   error "$PROG: error: no such N - $n; $possible_n"
   exit 1
+}
+
+test -z "$firstline" && {
+  error "$PROG: cannot determine in which dir cg was ran"
+  exit 1
+}
+
+test -e "$firstline" && {
+  cd "$firstline"
 }
 
 lineno="${line%% *}"
