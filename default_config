@@ -1,0 +1,35 @@
+profile color
+profile readmes
+profile translations
+profile cmake
+profile misc
+
+[all]
+hidden
+all-text
+
+[symlinks]
+follow-symlinks
+
+[color]
+color
+
+[cmake]
+ignore-dir CMakeFiles
+ignore CMakeCache.txt
+
+[readmes]
+ignore README*
+ignore [Rr]eadme*
+ignore CHANGELOG*
+ignore [Cc]hange[Ll]og*
+ignore COPYING*
+ignore LICENSE*
+
+[translations]
+ignore *.po
+
+[misc]
+ignore *.out
+ignore *.ts
+ignore CVS

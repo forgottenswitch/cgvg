@@ -9,6 +9,17 @@ tempfile="/tmp/.cgvg.$USER"
 tempfile_raw="/tmp/.cgvg.raw.$USER"
 rc_file="$HOME/.config/cgvg"
 
+# If config file is missing, copy defaults
+__default_config__=""
+if test ! -e "$rc_file" ; then
+  # Assume system-wide install
+  cp "$__default_config__" "$rc_file" >/dev/null 2>&1 || {
+    # Fallback to symlink-into-'~/bin' install
+    thisfile=$(readlink -e "$0")
+    cp "${thisfile%/*}/default_config" "$rc_file" >/dev/null 2>&1
+  }
+fi
+
 error() { echo "$@" >&2; }
 
 usage() {
@@ -260,6 +271,7 @@ if test -e "$rc_file" 2>/dev/null ; then
   flag0 print-long-lines
 
   flag0 nocolor
+  flag0 color
   flag1 color-line-number
   flag1 color-match
   flag1 color-path
@@ -381,15 +393,7 @@ echo "$rc_flags" | {
 
 fi # test -e "$rc_file"
 
-ag_cmd='ag --color \
-  --ignore "*.out" \
-  --ignore "README*" --ignore "[Rr]eadme*" \
-  --ignore-dir "CMakeFiles" --ignore "CMakeCache.txt" \
-  --ignore "CHANGELOG*" --ignore "[Cc]hange[Ll]og*" \
-  --ignore "COPYING*" --ignore "LICENSE*" \
-  --ignore "*.ts" \
-  --ignore CVS \
-  --ignore "*.po" \
+ag_cmd='ag \
   '"${rc_flags:-\\}"'
   "$@"'
 
