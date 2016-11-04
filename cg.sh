@@ -18,7 +18,7 @@ usage() {
   error " Arguments are passed to ag."
   error " If there are none, the last search is shown."
   error " 'cg --dry-run' would only print ag invocation command."
-  error " 'cg - [PROFILE]' lists/activates profile(s)."
+  error " 'cg - [PROFILE]...' lists/toggles profiles."
   error
 }
 
@@ -120,9 +120,21 @@ if test _"$1" = _"-" ; then
       }
     }
   ')
+
   if test -z "$1" ; then
     echo "$profiles"
   else
+    is_active_profile() {
+      echo "$profiles" |
+      {
+        while read REPLY ; do
+          test _"* $1" = _"$REPLY" && exit 0
+        done
+        exit 1
+      } && return 0
+      return 1
+    }
+
     err=n
     for prof ; do
       prof_found=n
@@ -144,10 +156,16 @@ if test _"$1" = _"-" ; then
       exit 1
     fi
 
+    profile_checks=""
     profile_prints=""
     for prof ; do
-      profile_prints="$profile_prints
-        print \"profile $prof\""
+      if is_active_profile "$prof" ; then
+        profile_checks="$profile_checks
+          if (prof == \"$prof\" ) { ignore_this_line = 1; }"
+      else
+        profile_prints="$profile_prints
+          print \"profile $prof\""
+      fi
     done
 
     newconfig=$(cat "$rc_file" 2>/dev/null | awk '
@@ -157,7 +175,9 @@ if test _"$1" = _"-" ; then
       }
 
       /^[ \t]*profile[ \t]+/ {
-        ignore_this_line = 1;
+        prof = $0
+        sub("^[ \t]*profile[ \t]*", "", prof)
+        '"$profile_checks"'
       }
 
       {
