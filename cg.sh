@@ -7,6 +7,7 @@ COLS="${LINES_COLS#* }"
 
 tempfile="/tmp/.cgvg.$USER"
 tempfile_raw="/tmp/.cgvg.raw.$USER"
+rc_file="$HOME/.config/cgvg"
 
 error() { echo "$@" >&2; }
 
@@ -17,6 +18,7 @@ usage() {
   error " Arguments are passed to ag."
   error " If there are none, the last search is shown."
   error " 'cg --dry-run' would only print ag invocation command."
+  error " 'cg - [PROFILE]' lists/activates profile(s)."
   error
 }
 
@@ -75,6 +77,64 @@ dry_run=n
 expecting_arg=n
 in_tail=n
 
+if test _"$1" = _"-" ; then
+  available_profiles=$(cat "$rc_file" 2>/dev/null | awk '
+    /^[ \t]*\[[ \t]*[-_a-zA-Z0-9]+[ \t]*\]/ {
+      gsub("[ \t]*[\\]\\[][ \t]*", "")
+      print
+    }
+
+    /^[ \t]*profile[ \t]+/ {
+      sub("[ \t]+", "")
+      sub("^profile", "")
+      profile_name = $0
+    }
+
+    {
+    }
+
+    END {
+      print profile_name
+    }
+  ')
+  current_profile=$(echo "$available_profiles" | tail -n 1)
+  available_profiles=$(echo "$available_profiles" | head -n -1)
+  if test -z "$2" ; then
+    echo "$available_profiles" |
+      while read -r REPLY ; do
+        if test _"$current_profile" = _"$REPLY" ; then
+          echo "* $REPLY"
+        else
+          echo "  $REPLY"
+        fi
+      done
+  else
+    nline=$(echo "$available_profiles" | grep -- "^$2\$" 2>/dev/null)
+    if test -z "$nline" ; then
+      echo "No profile named '$2'"
+      exit 1
+    else
+      newconfig=$(cat "$rc_file" 2>/dev/null | awk '
+        BEGIN {
+          print "profile '"$2"'"
+        }
+
+        /^[ \t]*profile[ \t]+/ {
+          ignore_this_line = 1
+        }
+
+        {
+          if (!ignore_this_line)
+            print
+          ignore_this_line = 0
+        }
+      ')
+      echo "$newconfig" > "$rc_file"
+    fi
+  fi
+  exit
+fi
+
 # Follows ag 0.32 manpage
 for arg ; do
   if test _"$in_tail" = _y ; then
@@ -105,14 +165,13 @@ for arg ; do
 done
 
 rc_flags=""
-rc_file="$HOME/.config/cgvg"
 if test -e "$rc_file" 2>/dev/null ; then
   flags=""
   flag0() {
     local ag_arg="$1" cg_arg="${2:-"$1"}"
     flags="$flags"'
 /^'"$cg_arg"'[ \t]*$/ {
-  out_arg("'"$ag_arg"'", "")
+  out_arg_maybe("'"$ag_arg"'", "")
 }
 '
   }
@@ -121,7 +180,7 @@ if test -e "$rc_file" 2>/dev/null ; then
     flags="$flags"'
 /^'"$cg_arg"'($|[ \t])/ {
   require_argument()
-  out_arg("'"$ag_arg"'", quote_as_arg(rest_of_line(l)))
+  out_arg_maybe("'"$ag_arg"'", quote_as_arg(rest_of_line(l)))
 }
 '
   }
@@ -151,6 +210,12 @@ if test -e "$rc_file" 2>/dev/null ; then
 
 rc_flags=$(cat "$rc_file" 2>/dev/null | awk '
 
+BEGIN {
+  ignore_directives = 0
+  ignore_this_line = 0
+  profile_name = ""
+}
+
 function rest_of_line(s) {
   sub("^[^ \t]*[ \t]*", "", s);
   return s
@@ -174,12 +239,20 @@ function out_arg(name, val) {
   outed_arg = 1
 }
 
+function out_arg_maybe(name, val) {
+  if (!ignore_directives) {
+    out_arg(name, val)
+  }
+}
+
 function quote_as_arg(s) {
   gsub("'"'"'", "&\\\\&&", s);
   return "'"'"'" s "'"'"'"
 }
 
-BEGIN { lineno = 0; }
+BEGIN {
+  lineno = 0
+}
 
 {
   lineno += 1
@@ -189,16 +262,34 @@ BEGIN { lineno = 0; }
   sub("^#.*", "", l)
 }
 
+/^[ \t]*\[[ \t]*[-_a-zA-Z0-9]*[ \t]*\][ \t]*/ {
+  gsub("[ \t]*[\\[\\]][ \t]*", "")
+  if ($0 == profile_name) {
+    ignore_directives = 0
+  } else {
+    ignore_directives = 1
+  }
+  ignore_this_line = 1
+}
+
+/^[ \t]*profile[ \t]+/ {
+  sub("[ \t]+", "")
+  sub("^profile", "")
+  profile_name = $0
+  ignore_this_line = 1
+}
+
 '"
 $flags
 "'
 
 {
-  if (!outed_arg && length(l) != 0) {
+  if (!outed_arg && !ignore_directives && !ignore_this_line && length(l) != 0) {
     dir = l
     sub("[ \t].*", "", dir)
     print_error("unrecognized directive '"'"'" dir "'"'"'")
   }
+  ignore_this_line = 0
 }
 
 '
