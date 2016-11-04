@@ -78,59 +78,95 @@ expecting_arg=n
 in_tail=n
 
 if test _"$1" = _"-" ; then
-  available_profiles=$(cat "$rc_file" 2>/dev/null | awk '
+  shift
+  profiles=$(cat "$rc_file" 2>/dev/null | awk '
+    BEGIN {
+      active_profiles[0] = ""
+      defined_profiles[0] = ""
+    }
+
+    function push(ary, x) { ary[length(ary)] = x; }
+    function has(ary, x) {
+      for (i in ary) {
+        if (ary[i] == x) { return 1; }
+      }
+      return 0
+    }
+
     /^[ \t]*\[[ \t]*[-_a-zA-Z0-9]+[ \t]*\]/ {
       gsub("[ \t]*[\\]\\[][ \t]*", "")
-      print
+      push(defined_profiles, $0)
     }
 
     /^[ \t]*profile[ \t]+/ {
       sub("[ \t]+", "")
       sub("^profile", "")
-      profile_name = $0
+      push(active_profiles, $0)
     }
 
     {
     }
 
     END {
-      print profile_name
+      for (i in defined_profiles) {
+        prof = defined_profiles[i]
+        if (prof == "")
+          continue;
+        if (has(active_profiles, prof)) {
+          print "* " prof
+        } else {
+          print "  " prof
+        }
+      }
     }
   ')
-  current_profile=$(echo "$available_profiles" | tail -n 1)
-  available_profiles=$(echo "$available_profiles" | head -n -1)
-  if test -z "$2" ; then
-    echo "$available_profiles" |
-      while read -r REPLY ; do
-        if test _"$current_profile" = _"$REPLY" ; then
-          echo "* $REPLY"
-        else
-          echo "  $REPLY"
-        fi
-      done
+  if test -z "$1" ; then
+    echo "$profiles"
   else
-    nline=$(echo "$available_profiles" | grep -- "^$2\$" 2>/dev/null)
-    if test -z "$nline" ; then
-      echo "No profile named '$2'"
+    err=n
+    for prof ; do
+      prof_found=n
+      echo "$profiles" | {
+        retcode=1
+        while read REPLY ; do
+          if test _"* $prof" = _"$REPLY" -o _"$prof" = _"$REPLY" ; then
+            retcode=0
+          fi
+        done
+        exit "$retcode"
+      } || {
+        echo "No profile named '$prof'"
+        err=y
+      }
+    done
+
+    if test _"$err" != _n ; then
       exit 1
-    else
-      newconfig=$(cat "$rc_file" 2>/dev/null | awk '
-        BEGIN {
-          print "profile '"$2"'"
-        }
-
-        /^[ \t]*profile[ \t]+/ {
-          ignore_this_line = 1
-        }
-
-        {
-          if (!ignore_this_line)
-            print
-          ignore_this_line = 0
-        }
-      ')
-      echo "$newconfig" > "$rc_file"
     fi
+
+    profile_prints=""
+    for prof ; do
+      profile_prints="$profile_prints
+        print \"profile $prof\""
+    done
+
+    newconfig=$(cat "$rc_file" 2>/dev/null | awk '
+      BEGIN {
+        ignore_this_line = 0
+        '"$profile_prints"'
+      }
+
+      /^[ \t]*profile[ \t]+/ {
+        ignore_this_line = 1;
+      }
+
+      {
+        if (!ignore_this_line)
+          print
+        ignore_this_line = 0
+      }
+    ')
+    echo "$newconfig" > "$rc_file"
   fi
   exit
 fi
@@ -213,7 +249,17 @@ rc_flags=$(cat "$rc_file" 2>/dev/null | awk '
 BEGIN {
   ignore_directives = 0
   ignore_this_line = 0
-  profile_name = ""
+  active_profiles[0] = ""
+}
+
+function push(ary, x) {
+  ary[length(ary)] = x
+}
+function has(ary, x) {
+  for (i in ary) {
+    if (ary[i] == x) { return 1; }
+  }
+  return 0
 }
 
 function rest_of_line(s) {
@@ -264,7 +310,7 @@ BEGIN {
 
 /^[ \t]*\[[ \t]*[-_a-zA-Z0-9]*[ \t]*\][ \t]*/ {
   gsub("[ \t]*[\\[\\]][ \t]*", "")
-  if ($0 == profile_name) {
+  if (has(active_profiles, $0)) {
     ignore_directives = 0
   } else {
     ignore_directives = 1
@@ -275,7 +321,7 @@ BEGIN {
 /^[ \t]*profile[ \t]+/ {
   sub("[ \t]+", "")
   sub("^profile", "")
-  profile_name = $0
+  push(active_profiles, $0)
   ignore_this_line = 1
 }
 
