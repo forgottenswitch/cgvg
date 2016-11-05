@@ -133,7 +133,22 @@ if test _"$1" = _"-" ; then
   ')
 
   if test -z "$1" ; then
-    echo "$profiles"
+    echo "$profiles" |
+    {
+      n=0
+      while read REPLY ; do
+        n=$((n+1))
+        prof="$REPLY"
+        if test _"${REPLY#* }" != _"$REPLY" ; then
+          onoff="*"
+          prof="${REPLY#* }"
+        else
+          onoff=" "
+        fi
+        printf "  [%s]%s%s" "$n" "$onoff" "$prof"
+      done
+    }
+    echo
   else
     is_active_profile() {
       echo "$profiles" |
