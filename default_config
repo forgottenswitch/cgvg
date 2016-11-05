@@ -28,6 +28,7 @@ ignore LICENSE*
 
 [translations]
 ignore *.po
+ignore *.pot
 
 [misc]
 ignore *.out
