@@ -16,11 +16,11 @@ Allows for options to be grouped into "profiles",
 which could be toggled at once (i.e. `cg - all` toggles `--hidden --all-text`).
 
 Similar scripts:
-[Original cgvg](http://uzix.org/cgvg.html)
-[Sack](https://github.com/sampson-chen/sack)
+- [Original cgvg](http://uzix.org/cgvg.html)
+- [Sack](https://github.com/sampson-chen/sack)
 
 Searches relevant code only; to search all files, do `cg - all` first.
-You may also find `cg --` (same as `cg --dry-run`) output useful.
+`cg --` shows resulting `ag` command.
 
 Requirements
 ------------
