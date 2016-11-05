@@ -19,10 +19,8 @@ Similar scripts:
 [Original cgvg](http://uzix.org/cgvg.html)
 [Sack](https://github.com/sampson-chen/sack)
 
-Caveats
--------
-Searches relevant code only; to search all files, try `cg - all`.
-You may also find `cg --dry-run` output useful.
+Searches relevant code only; to search all files, do `cg - all` first.
+You may also find `cg --` (same as `cg --dry-run`) output useful.
 
 Requirements
 ------------

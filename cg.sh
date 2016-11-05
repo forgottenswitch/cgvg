@@ -262,7 +262,7 @@ for arg ; do
       --pager \
       ) expecting_arg=y ;;
     --) in_tail=y ;;
-    --dry-run) dry_run=y ;;
+    --dry|--dry-run) dry_run=y ;;
     -*) expecting_arg=n ;;
     *)
       if test _"$expecting_arg" = _y ; then
@@ -440,10 +440,15 @@ ag_cmd='ag \
   '"${rc_flags:-\\}"'
   "$@"'
 
+if test _"$*" = _"--" ; then
+  shift
+  dry_run=y
+fi
+
 if test _"$dry_run" = _y ; then
   quoted_args=""
   for arg ; do
-    test _"$arg" = _"--dry-run" && continue
+    test _"$arg" = _"--dry-run" -o _"$arg" = _"--dry" && continue
     quoted_args="$quoted_args '$(echo "$arg" | sed -e "s/'/'\\''/")'"
   done
   echo "${ag_cmd%\"\$@\"}${quoted_args# }"
