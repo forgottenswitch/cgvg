@@ -161,21 +161,45 @@ if test _"$1" = _"-" ; then
       return 1
     }
 
+    nth_line() {
+      local n="$1"
+      while read REPLY ; do
+        n=$((n-1))
+        test _"$n" = _0 && echo "$REPLY"
+      done
+    }
+
+    is_a_number() {
+      local x="$1"
+      (test _$((x)) = _"$x") >/dev/null 2>&1
+    }
+
     err=n
     for prof ; do
       prof_found=n
-      echo "$profiles" | {
-        retcode=1
-        while read REPLY ; do
-          if test _"* $prof" = _"$REPLY" -o _"$prof" = _"$REPLY" ; then
-            retcode=0
-          fi
-        done
-        exit "$retcode"
-      } || {
-        echo "No profile named '$prof'"
-        err=y
-      }
+
+      if is_a_number "$prof" ; then
+        prof_num="$prof"
+        prof=$(echo "$profiles" | nth_line $((prof_num)) )
+        prof="${prof#* }"
+        test -z "$prof" && {
+          echo "Wrong profile number '$prof_num'"
+          err=y
+        }
+      else
+        echo "$profiles" | {
+          retcode=1
+          while read REPLY ; do
+            if test _"* $prof" = _"$REPLY" -o _"$prof" = _"$REPLY" ; then
+              retcode=0
+            fi
+          done
+          exit "$retcode"
+        } || {
+          echo "No profile named '$prof'"
+          err=y
+        }
+      fi
     done
 
     if test _"$err" != _n ; then
@@ -185,6 +209,10 @@ if test _"$1" = _"-" ; then
     profile_checks=""
     profile_prints=""
     for prof ; do
+      if is_a_number "$prof" ; then
+        prof=$(echo "$profiles" | nth_line "$prof")
+        prof="${prof#* }"
+      fi
       if is_active_profile "$prof" ; then
         profile_checks="$profile_checks
           if (prof == \"$prof\" ) { ignore_this_line = 1; }"
