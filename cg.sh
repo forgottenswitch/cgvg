@@ -384,8 +384,9 @@ BEGIN {
 }
 
 /^[ \t]*\[[ \t]*[-_a-zA-Z0-9]*[ \t]*\][ \t]*/ {
-  gsub("[ \t]*[\\[\\]][ \t]*", "")
-  if (has(active_profiles, $0)) {
+  prof = $0
+  gsub("[ \t]*[\\[\\]][ \t]*", "", prof)
+  if (has(active_profiles, prof)) {
     ignore_directives = 0
   } else {
     ignore_directives = 1
@@ -394,9 +395,10 @@ BEGIN {
 }
 
 /^[ \t]*profile[ \t]+/ {
-  sub("[ \t]+", "")
-  sub("^profile", "")
-  push(active_profiles, $0)
+  prof = $0
+  sub("[ \t]+", "", prof)
+  sub("^profile", "", prof)
+  push(active_profiles, prof)
   ignore_this_line = 1
 }
 
