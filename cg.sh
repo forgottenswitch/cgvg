@@ -356,7 +356,7 @@ function print_error(msg) {
 }
 
 function out_arg(name, val) {
-  print "--" name " " val " \\"
+  print "  --" name " " val " \\"
   outed_arg = 1
 }
 
@@ -437,7 +437,7 @@ echo "$rc_flags" | {
 fi # test -e "$rc_file"
 
 ag_cmd='ag \
-  '"${rc_flags:-\\}"'
+'"${rc_flags:-\\}"'
   "$@"'
 
 if test _"$*" = _"--" ; then
