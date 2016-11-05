@@ -12,13 +12,17 @@ Grep that numbers its results.
     # launches EDITOR vg.sh +21
 ```
 
-[Original cgvg](http://uzix.org/cgvg.html).
+Allows for options to be grouped into "profiles",
+which could be toggled at once (i.e. `cg - all` toggles `--hidden --all-text`).
+
+Similar scripts:
+[Original cgvg](http://uzix.org/cgvg.html)
+[Sack](https://github.com/sampson-chen/sack)
 
 Caveats
 -------
-Tries to search relevant code only, so `grep -r` might be needed
-if a file is expected to be generated (`Makefile` in an autotools project,
-an `.m4` or `.po` extension, etc.).
+Searches relevant code only; to search all files, try `cg - all`.
+You may also find `cg --dry-run` output useful.
 
 Requirements
 ------------

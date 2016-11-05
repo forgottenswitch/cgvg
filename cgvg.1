@@ -30,6 +30,9 @@ how the \fBag\fR would be invoked.
 \fBag\fR options could be grouped into "profiles", to be toggled together.
 Running "\fBcg\fR -" shows list of profiles; further args toggle profile activation.
 .Pp
+By default, \fBcg\fI - all\fR is needed to search
+files expected to be generated, changelogs, translations, etc.
+.Pp
 .Sh FILES
 \fBcg\fR reads its configuration from \fI~/.config/cgvg\fR.
 If there is none, default one is copied.
@@ -86,8 +89,9 @@ grep(1), ag(1)
 .Pp
 .Sh HISTORY
 Original \fBcgvg\fR was implemented in \fBperl\fR(1).
+Another similar tool is \fBsack\fR.
 .Pp
-.Sh BUGS
-Tries to search relevant code only, so \fBgrep\fI -r\fR might still be needed
-for files expected to be generated, changelogs, translations, etc.
-
+.Bl -tag -width "12" -compact
+.It http://uzix.org/cgvg.html
+.It https://github.com/sampson-chen/sack
+.El
