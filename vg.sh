@@ -48,8 +48,6 @@ line="${line_nlines%
 nlines="${line_nlines#*
 }"
 
-nlines=$((nlines-1))
-
 possible_n="1..$nlines only"
 if test "$line_nlines" = "1" ; then
   nlines=0
@@ -57,8 +55,8 @@ if test "$line_nlines" = "1" ; then
 fi
 
 wrong_n="$n_is_not_a_number"
-test -z "$wrong_n" && test "$nlines" -lt 1 && wrong_n=y
-test -z "$wrong_n" && test "$nlines" -lt "$n" && wrong_n=y
+test "$nlines" -lt 1 && wrong_n=y
+test "$nlines" -lt "$n" && wrong_n=y
 
 test "$wrong_n" = y && {
   usage
