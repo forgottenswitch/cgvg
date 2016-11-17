@@ -9,6 +9,7 @@ fi
 n="$1"
 
 file_and_line=$(
+  sed -e 's/\x1b\[[0-9]\+m//g' "$stashfile" | # remove colors
   {
   read file
   line="$file"
@@ -33,13 +34,13 @@ file_and_line=$(
       fi
     fi
   done
-  } < "$stashfile" |
-  sed -e 's/.\[[0-9]\+m//g'
+  }
 )
 
 #echo ---
 #echo "$file_and_line"
 #echo ---
+#exit 1
 
 file="${file_and_line%%
 *}"

@@ -6,9 +6,12 @@ if test _0 = _"$#" ; then
   exec cat "$stashfile"
 fi
 
+color_reset='\033[0m'
+
 idx_filter() {
   read line
   echo "$line"
+  printf "$color_reset"
 
   case "$line" in
     Invalid*|Usage*)
@@ -26,6 +29,7 @@ idx_filter() {
     elif test -z "$curfile" ; then
       curfile="$line"
       echo "$line"
+      printf "$color_reset"
     else
       echo "  $line_idx	$line"
       line_idx=$((line_idx+1))
