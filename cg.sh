@@ -1,9 +1,143 @@
 #!/bin/sh
 
+profiledir="$HOME/.config/cgvg"
 stashfile=/tmp/.cgvg."$USER"
 
 if test _0 = _"$#" ; then
   exec cat "$stashfile"
+fi
+
+args_from_profile=""
+
+if test _"${1#-p}" != _"$1" ; then
+  usage_p() {
+    echo "Usage: cg -p"
+    echo "       cg -pp [PROFILE]"
+    echo "       cg -pPROFILE_TO_USE ..."
+    echo "       cg -p+ PROFILE OPTION_TO_ADD..."
+    echo "       cg -p- PROFILE OPTION_TO_REMOVE..."
+    echo "       cg -p-rm PROFILE_TO_REMOVE..."
+    echo
+  }
+
+  if test _"-p" = _"$1" ; then
+    usage_p
+
+    echo "Profiles:"
+    mkdir -p "$profiledir"
+    ls "$profiledir" |
+    sed -e '
+      # remove colors
+      s/\x1b\[[0-9]*m//g
+
+      # indent
+      s/^/  /
+    '
+    exit
+  fi
+
+  test_profile_exists() {
+    if test ! -e "$profilefile" ; then
+      echo "Profile '$profilefile' does not exist"
+      exit 1
+    fi
+  }
+
+  set_profilefile() {
+    # ensure profile is not a path
+    profile="${profile##*[/\\]}"
+    profilefile="$profiledir"/"$profile"
+  }
+
+  if test _"-p-rm" = _"$1" ; then
+    if test _$# = _0 ; then
+      usage_p
+      exit 1
+    fi
+    # remove profiles
+    for profile ; do
+      set_profilefile
+      test_profile_exists
+      rm "$profilefile"
+    done
+    exit
+  fi
+
+  profile_command="$1"
+  shift
+
+  shift_profile() {
+    profile="$1"
+    if test $# -lt 1 ; then
+      usage_p
+      exit 1
+    fi
+    shift
+  }
+
+  case "$profile_command" in
+    -p-) # remove options from profile
+      shift_profile
+      set_profilefile
+      s_prog=""
+      for arg ; do
+        # escape slashes
+        arg=$(echo "$arg" | sed -e 's|/|\x31|')
+        # put escaped $arg into sed regex
+        s_prog="$s_prog
+          /^$arg\$/ D;
+          "
+      done
+      test_profile_exists
+      sed -i -e "$s_prog" "$profilefile"
+      exit
+      ;;
+    -p+) # add options to profile
+      shift_profile
+      set_profilefile
+      mkdir -p "$profiledir"
+      test -e "$profilefile" || printf '' > "$profilefile"
+      for arg ; do
+        if ! grep -q -F "$arg" "$profilefile" ; then
+          echo "$arg" >> "$profilefile"
+        fi
+      done
+      exit
+      ;;
+    -pp) # print profiles
+      print_profile() {
+        echo "$1:"
+        sed -e 's/^/  /' "$profiledir"/"$1"
+      }
+      if test _$# = _0 ; then
+        ls "$profiledir" |
+        while read profile ; do
+          print_profile "$profile"
+        done
+      fi
+      for profile ; do
+        set_profilefile
+        test_profile_exists
+        print_profile "$profile"
+      done
+      exit
+      ;;
+    *)
+      profile="${profile_command#-p}"
+      set_profilefile
+      # quote the lines of profile
+      args_from_profile=$(
+        awk '
+          {
+            gsub("'"'"'", "&\"&\"&")
+            printf " '"'"'" $0 "'"'"'"
+          }
+        ' "$profilefile"
+      )
+      # strip trailing backslash
+      args_from_profile="${args_from_profile% \\}"
+      ;;
+  esac
 fi
 
 color_reset='\033[0m'
@@ -47,4 +181,5 @@ case "$PAGER" in
   less|*/less) pager_flags="-R" ;;
 esac
 
-exec rg -p "$@" | idx_filter | tee "$stashfile" | "${PAGER}" $pager_flags
+#echo "rg -p $args_from_profile \"\$@\""
+eval "rg -p $args_from_profile \"\$@\"" | idx_filter | tee "$stashfile" | "${PAGER}" $pager_flags
