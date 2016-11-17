@@ -49,5 +49,5 @@ line="${file_and_line#*
 if test ! -z "$file" -a ! -z "$line" -a _$((line)) = _"$line" ; then
   exec "${EDITOR:-vi}" "$file" +"$line"
 else
-  echo "error: no such N - $n"
+  echo "error: no such N - $n (try 'cg')"
 fi
