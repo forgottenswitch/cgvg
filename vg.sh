@@ -1,80 +1,60 @@
 #!/bin/sh
 
-PROG=vg
-test -z "$EDITOR" && EDITOR=vim
+stashfile=/tmp/.cgvg."$USER"
 
-tempfile="/tmp/.cgvg.$USER"
-n="$1"
-
-error() { echo "$@" >&2; }
-
-usage() {
-  error "$PROG - go to nth result of cg invocation"
-  error " Usage: $PROG N"
-}
-
-test -z "$n" && { usage; exit 1; }
-
-n_is_not_a_number=""
-n1="$n"
-n2="$n"
-while test ! -z "$n1" ; do
-  n2="${n1#[0-9]}"
-  test "$n1" = "$n2" && { n_is_not_a_number=y; break; }
-  n1="${n2}"
-done
-
-get_line_nlines() {
-  local i=0
-  read -r REPLY
-  echo "$REPLY"
-  while read -r REPLY ; do
-    i=$((i+1))
-    if test "$i" -eq "$n" 2>/dev/null ; then
-      echo "$REPLY"
-    fi
-  done
-  echo "$i"
-}
-
-fstl_line_nlines=$(cat "$tempfile" | get_line_nlines)
-
-firstline="${fstl_line_nlines%%
-*}"
-line_nlines="${fstl_line_nlines#*
-}"
-line="${line_nlines%
-*}"
-nlines="${line_nlines#*
-}"
-
-possible_n="1..$nlines only"
-if test "$line_nlines" = "1" ; then
-  nlines=0
-  possible_n="no results at all"
+if test _"0" = _"$#" ; then
+  exit 1
 fi
 
-wrong_n="$n_is_not_a_number"
-test "$nlines" -lt 1 && wrong_n=y
-test "$nlines" -lt "$n" && wrong_n=y
+n="$1"
 
-test "$wrong_n" = y && {
-  usage
-  error
-  error "$PROG: error: no such N - $n; $possible_n"
-  exit 1
-}
+cwd_and_file_and_line=$(
+  sed -e 's/\x1b\[[0-9]\+m//g' "$stashfile" | # remove colors
+  {
+  # read cg invocation dir
+  read line
+  echo "$line"
 
-test -z "$firstline" && {
-  error "$PROG: cannot determine in which dir cg was ran"
-  exit 1
-}
+  while read line ; do
+    if test -z "$line" ; then
+      file=""
+    elif test -z "$file" ; then
+      file="$line"
+    else
+      line_n="${line%%	*}"
+      #echo == "$line [$line_n || $n]"
+      if test _"$line_n" = _"$n" ; then
+        echo "$line" | {
+          read line_n line
+          #echo "// $file //"
+          #echo "{{ ${line%%:*} }}"
+          echo "$file"
+          echo "${line%%:*}"
+        }
+        break
+      fi
+    fi
+  done
+  }
+)
 
-test -e "$firstline" && {
-  cd "$firstline"
-}
+#echo ---
+#echo "$dir_and_file_and_line"
+#echo ---
+#exit 1
 
-lineno="${line%% *}"
-file="${line#* }"
+cwd="${cwd_and_file_and_line%%
+*}"
+file_and_line="${cwd_and_file_and_line#*
+}"
+file="${file_and_line%%
+*}"
+line="${file_and_line#*
+}"
 
-exec "${EDITOR:-vi}" +"$lineno" "$file"
+if test ! -z "$file" -a ! -z "$line" -a _$((line)) = _"$line" ; then
+  cd "$cwd" || exit 1
+  exec "${EDITOR:-vi}" "$file" +"$line"
+else
+  echo "error: no such N - $n (try 'cg')"
+fi
