@@ -36,7 +36,7 @@ idx_filter() {
 pager_flags=""
 PAGER="${PAGER:-less}"
 case "$PAGER" in
-  less) pager_flags="-R" ;;
+  less|*/less) pager_flags="-R" ;;
 esac
 
 exec rg -p "$@" | idx_filter | tee "$stashfile" | "${PAGER}" $pager_flags
