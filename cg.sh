@@ -2,6 +2,10 @@
 
 stashfile=/tmp/.cgvg."$USER"
 
+if test _0 = _"$#" ; then
+  exec cat "$stashfile"
+fi
+
 idx_filter() {
   read line
   echo "$line"
