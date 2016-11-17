@@ -2,6 +2,10 @@
 
 stashfile=/tmp/.cgvg."$USER"
 
+if test _"0" = _"$#" ; then
+  exit 1
+fi
+
 n="$1"
 
 file_and_line=$(
