@@ -178,12 +178,63 @@ idx_filter() {
   done
 }
 
+examine_options() {
+  dot_needed=y
+  tail_arg_count=0
+  in_arg=""
+  #echo "examine_options: $*"
+  for arg ; do
+    #echo "- arg: $arg"
+    if test ! -z "$in_arg" -a _"$in_arg" != _"--" ; then
+      #echo "- in_arg: $in_arg"
+      in_arg=""
+      continue
+    elif test _"--" = _"$arg" ; then
+      #echo "- in_arg --"
+      in_arg="$arg"
+      continue
+    elif test _"${in_arg#-}" != _"$in_arg" ; then
+      #echo "- -arg"
+      true
+    else
+      #echo "- tail"
+      if test $((tail_arg_count)) -gt 1 ; then
+        dot_needed=n
+        break
+      fi
+      tail_arg_count=$((tail_arg_count+1))
+    fi
+    examine_arg
+    #echo "  ex: $in_arg"
+  done
+}
+
 grepper_flags=""
 case "$grepper" in
   rg|*/rg) grepper_flags="-p" ;;
-  ag|*/ag) grepper_flags="--color -H" ;;
+  ag|*/ag)
+    grepper_flags="--color -H"
+
+    examine_arg() {
+      case "$arg" in
+        -A|--after| \
+          -B|--before| \
+          -C|--context| \
+          -g| \
+          --ignore| \
+          --ignore-dir| \
+          -m|--max-count| \
+          -p|--path-to-ignore| \
+          --pager| \
+          --workers)
+            in_arg="$arg" ;;
+      esac
+    }
+
+    examine_options "$@"
+    ;;
   grep|*/grep)
-    grepper_flags="--color=always -n -H -s -r . --binary-files=without-match -e"
+    grepper_flags="-r -n -H --color=always --binary-files=without-match -e"
 
     idx_filter() {
       pwd
@@ -221,6 +272,26 @@ case "$grepper" in
       done
     }
 
+    examine_arg() {
+      case "$arg" in
+        -e| \
+          -f| \
+          -m| \
+          -A| \
+          -B| \
+          -C| \
+          -D| \
+          -d)
+            in_arg="$arg" ;;
+      esac
+    }
+
+    examine_options "$@"
+
+    if test "${1#-}" != "$1" ; then
+      echo "Grep: first argument must be a pattern."
+      exit 1
+    fi
     ;;
 esac
 
@@ -230,9 +301,14 @@ case "$PAGER" in
   less|*/less) pager_flags="-R" ;;
 esac
 
-#echo "$grepper $grepper_flags $args_from_profile \"\$@\""
+dot_arg=""
+if test _"$dot_needed" = _y ; then
+  dot_arg="."
+fi
+
+#echo "$grepper $grepper_flags $args_from_profile \"\$@\" $dot_arg"
 #exit 1
 
-eval "$grepper $grepper_flags $args_from_profile \"\$@\"" |
+eval "$grepper $grepper_flags $args_from_profile \"\$@\" $dot_arg" |
 idx_filter | tee "$stashfile" |
 "${PAGER}" $pager_flags
