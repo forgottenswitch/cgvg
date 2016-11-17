@@ -1,11 +1,16 @@
 #!/bin/sh
 
-profiledir="$HOME/.config/cgvg"
 stashfile=/tmp/.cgvg."$USER"
 
 if test _0 = _"$#" ; then
   exec cat "$stashfile"
 fi
+
+# Determine the grep tool
+for grepper in rg ag grep; do
+  type "$grepper" >/dev/null 2>&1 && break
+done
+profiledir="$HOME/.config/cgvg/$grepper"
 
 args_from_profile=""
 
@@ -152,9 +157,7 @@ idx_filter() {
   printf "$color_reset"
 
   case "$line" in
-    Invalid*|Usage*)
-      cat
-      ;;
+    Invalid*|Usage*) exec cat ;;
   esac
 
   curfile="$line"
@@ -175,11 +178,61 @@ idx_filter() {
   done
 }
 
+grepper_flags=""
+case "$grepper" in
+  rg|*/rg) grepper_flags="-p" ;;
+  ag|*/ag) grepper_flags="--color -H" ;;
+  grep|*/grep)
+    grepper_flags="--color=always -n -H -s -r . --binary-files=without-match -e"
+
+    idx_filter() {
+      pwd
+      echo
+
+      read line
+
+      case "$line" in
+        Usage*) exec cat ;;
+      esac
+
+      curfile="${line%%:*}"
+      match="${line#*:}"
+      curfile1=""
+
+      echo "$curfile"
+      printf "$color_reset"
+      match_idx=1
+      echo "  $match_idx	$match"
+
+      while read line ; do
+        match_idx=$((match_idx+1))
+        curfile1="$curfile"
+        curfile="${line%%:*}"
+        match="${line#*:}"
+
+        if test _"$curfile1" != _"$curfile" ; then
+          echo
+          #echo ":: $curfile1 != $curfile" | hexdump -C
+          echo "$curfile"
+          printf "$color_reset"
+        fi
+
+        echo "  $match_idx	$match"
+      done
+    }
+
+    ;;
+esac
+
 pager_flags=""
 PAGER="${PAGER:-less}"
 case "$PAGER" in
   less|*/less) pager_flags="-R" ;;
 esac
 
-#echo "rg -p $args_from_profile \"\$@\""
-eval "rg -p $args_from_profile \"\$@\"" | idx_filter | tee "$stashfile" | "${PAGER}" $pager_flags
+#echo "$grepper $grepper_flags $args_from_profile \"\$@\""
+#exit 1
+
+eval "$grepper $grepper_flags $args_from_profile \"\$@\"" |
+idx_filter | tee "$stashfile" |
+"${PAGER}" $pager_flags
