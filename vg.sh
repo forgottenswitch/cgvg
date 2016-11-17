@@ -42,4 +42,8 @@ file="${file_and_line%%
 line="${file_and_line#*
 }"
 
-exec "${EDITOR:-vi}" "$file" +"$line"
+if test ! -z "$file" -a ! -z "$line" -a _$((line)) = _"$line" ; then
+  exec "${EDITOR:-vi}" "$file" +"$line"
+else
+  echo "error: no such N - $n"
+fi
