@@ -19,7 +19,7 @@ Installation
 - Install [ripgrep](https://github.com/BurntSushi/ripgrep):
   * Install [Rust](https://rust-lang.org)
   * Install [cargo](https://crates.io)
-  * `cargo install --git https://BurntSushi/ripgrep.git`
+  * `cargo install --git https://github.com/BurntSushi/ripgrep.git`
 - Add `~/.cargo/bin` and `~/bin` to $PATH in `.bashrc`
 ```
 PATH="$PATH":"$HOME"/bin
