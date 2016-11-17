@@ -9,6 +9,11 @@ Usage
 Just `cg` prints the last search result.
 `vg N` goes to N-th occurence.
 
+Options could be put into a profile for later use as `cg -pPROF`.
+`cg -p` lists profiles, `cg -pp` prints them.
+`cg -p+` adds options to profile, `-p-` removes them.
+`-p-rm` removes entire profile.
+
 Installation
 ------------
 - Install [ripgrep](https://github.com/BurntSushi/ripgrep):
