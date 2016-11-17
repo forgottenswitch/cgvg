@@ -9,6 +9,10 @@ fi
 color_reset='\033[0m'
 
 idx_filter() {
+  # tell vg the current dir
+  pwd
+  echo
+
   read line
   echo "$line"
   printf "$color_reset"

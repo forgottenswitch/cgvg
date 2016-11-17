@@ -8,11 +8,12 @@ fi
 
 n="$1"
 
-file_and_line=$(
+cwd_and_file_and_line=$(
   sed -e 's/\x1b\[[0-9]\+m//g' "$stashfile" | # remove colors
   {
-  read file
-  line="$file"
+  # read cg invocation dir
+  read line
+  echo "$line"
 
   while read line ; do
     if test -z "$line" ; then
@@ -38,16 +39,21 @@ file_and_line=$(
 )
 
 #echo ---
-#echo "$file_and_line"
+#echo "$dir_and_file_and_line"
 #echo ---
 #exit 1
 
+cwd="${cwd_and_file_and_line%%
+*}"
+file_and_line="${cwd_and_file_and_line#*
+}"
 file="${file_and_line%%
 *}"
 line="${file_and_line#*
 }"
 
 if test ! -z "$file" -a ! -z "$line" -a _$((line)) = _"$line" ; then
+  cd "$cwd" || exit 1
   exec "${EDITOR:-vi}" "$file" +"$line"
 else
   echo "error: no such N - $n (try 'cg')"
