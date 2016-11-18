@@ -22,6 +22,7 @@ if test _"${1#-p}" != _"$1" ; then
     echo "       cg -p+ PROFILE OPTION_TO_ADD..."
     echo "       cg -p- PROFILE OPTION_TO_REMOVE..."
     echo "       cg -p-rm PROFILE_TO_REMOVE..."
+    echo "       cg -p-mv OLD_PROFILE NEW_PROFILE"
     echo
   }
 
@@ -48,25 +49,51 @@ if test _"${1#-p}" != _"$1" ; then
     fi
   }
 
+  test_profile_exists_not() {
+    if test -e "$profilefile" ; then
+      echo "Profile '$profilefile' already exists"
+      exit 1
+    fi
+  }
+
   set_profilefile() {
     # ensure profile is not a path
     profile="${profile##*[/\\]}"
     profilefile="$profiledir"/"$profile"
   }
 
-  if test _"-p-rm" = _"$1" ; then
-    if test _$# = _0 ; then
-      usage_p
-      exit 1
-    fi
-    # remove profiles
-    for profile ; do
+  case "$1" in
+    -p-rm)
+      # remove profiles
+      if test _$# = _0 ; then
+        usage_p
+        exit 1
+      fi
+      for profile ; do
+        set_profilefile
+        test_profile_exists
+        rm "$profilefile"
+      done
+      exit
+      ;;
+    -p-mv)
+      # move a profile
+      if test _$# != _2 ; then
+        usage_p
+        exit 1
+      fi
+      profile="$1"
       set_profilefile
+      pfile1="$profilefile"
       test_profile_exists
-      rm "$profilefile"
-    done
-    exit
-  fi
+      profile="$2"
+      set_profilefile
+      pfile2="$profilefile"
+      test_profile_exists_not
+      mv "$pfile1" "$pfile2"
+      exit
+      ;;
+  esac
 
   profile_command="$1"
   shift
