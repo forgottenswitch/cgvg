@@ -197,8 +197,11 @@ idx_filter() {
   curfile="$line"
   line_idx=1
 
+  ctrlm=$(printf '\015')
+  #echo "CTRLM $ctrlm" | hexdump -C
+
   while read -r line ; do
-    if test -z "$line" ; then
+    if test -z "$line" -o _"$line" = _"$ctrlm" ; then
       echo
       curfile=""
     elif test -z "$curfile" ; then
@@ -206,6 +209,7 @@ idx_filter() {
       echo "$line"
       printf "$color_reset"
     else
+      #echo -n "$line" | hexdump -C
       echo "  $line_idx	$line"
       line_idx=$((line_idx+1))
     fi
