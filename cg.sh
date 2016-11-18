@@ -10,6 +10,7 @@ esac
 
 if test _0 = _"$#" ; then
   cat "$stashfile" | "${PAGER}" $pager_flags
+  exit
 fi
 
 # Determine the grep tool
@@ -120,7 +121,7 @@ if test _"${1#-p}" != _"$1" ; then
       s_prog=""
       for arg ; do
         # escape slashes
-        arg=$(echo "$arg" | sed -e 's|/|\x31|')
+        arg=$(echo "$arg" | sed -e 's|/|\x2f|')
         # put escaped $arg into sed regex
         s_prog="$s_prog
           /^$arg\$/ D;
