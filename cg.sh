@@ -2,8 +2,14 @@
 
 stashfile=/tmp/.cgvg."$USER"
 
+pager_flags=""
+PAGER="${PAGER:-less}"
+case "$PAGER" in
+  less|*/less) pager_flags="-R" ;;
+esac
+
 if test _0 = _"$#" ; then
-  exec cat "$stashfile"
+  cat "$stashfile" | "${PAGER}" $pager_flags
 fi
 
 # Determine the grep tool
@@ -320,12 +326,6 @@ case "$grepper" in
       exit 1
     fi
     ;;
-esac
-
-pager_flags=""
-PAGER="${PAGER:-less}"
-case "$PAGER" in
-  less|*/less) pager_flags="-R" ;;
 esac
 
 dot_arg=""
