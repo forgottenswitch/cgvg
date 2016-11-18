@@ -150,7 +150,7 @@ if test _"${1#-p}" != _"$1" ; then
       }
       if test _$# = _0 ; then
         ls "$profiledir" |
-        while read profile ; do
+        while read -r profile ; do
           print_profile "$profile"
         done
       fi
@@ -186,7 +186,7 @@ idx_filter() {
   pwd
   echo
 
-  read line
+  read -r line
   echo "$line"
   printf "$color_reset"
 
@@ -197,7 +197,7 @@ idx_filter() {
   curfile="$line"
   line_idx=1
 
-  while read line ; do
+  while read -r line ; do
     if test -z "$line" ; then
       echo
       curfile=""
@@ -274,7 +274,7 @@ case "$grepper" in
       pwd
       echo
 
-      read line
+      read -r line
 
       case "$line" in
         Usage*) exec cat ;;
@@ -289,7 +289,7 @@ case "$grepper" in
       match_idx=1
       echo "  $match_idx	$match"
 
-      while read line ; do
+      while read -r line ; do
         match_idx=$((match_idx+1))
         curfile1="$curfile"
         curfile="${line%%:*}"

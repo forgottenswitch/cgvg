@@ -15,10 +15,10 @@ cwd_and_file_and_line=$(
   ' "$stashfile" | # remove colors
   {
   # read cg invocation dir
-  read line
+  read -r line
   echo "$line"
 
-  while read line ; do
+  while read -r line ; do
     #echo __ "$line [$line_n || $n]"
     if test -z "$line" ; then
       file=""
@@ -29,7 +29,7 @@ cwd_and_file_and_line=$(
       #echo == "$line [$line_n || $n]"
       if test _"$line_n" = _"$n" ; then
         echo "$line" | {
-          read line_n line
+          read -r line_n line
           #echo "// $file //"
           #echo "{{ ${line%%:*} }}"
           echo "$file"
