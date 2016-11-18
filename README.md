@@ -14,20 +14,12 @@ MIT license.
 
 Installation
 ------------
-- Install [ripgrep](https://github.com/BurntSushi/ripgrep):
-  * Install [Rust](https://rust-lang.org)
-  * Install [cargo](https://crates.io)
-  * `cargo install --git https://github.com/BurntSushi/ripgrep.git`
-- Add `~/.cargo/bin` and `~/bin` to $PATH in `.bashrc`
-```
-PATH="$PATH":"$HOME"/bin
-PATH="$PATH":"$HOME"/.cargo/bin
-```
 - Symlink `cg.sh` and `vg.sh` into `~/bin`:
   * Install `make`
   * `make user-install`
-- Adjust PAGER and EDITOR in `.bashrc`:
+- Adjust PATH, PAGER and EDITOR in `.bashrc`:
 ```
+PATH="$PATH":"$HOME"/bin
 PAGER=less
 EDITOR=vim
 ```
