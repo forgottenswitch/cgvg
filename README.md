@@ -24,6 +24,7 @@ PATH="$PATH":"$HOME"/bin
 PATH="$PATH":"$HOME"/.cargo/bin
 ```
 - Symlink `cg.sh` and `vg.sh` into `~/bin`:
+  * Install `make`
   * `make user-install`
 - Adjust PAGER and EDITOR in `.bashrc`:
 ```
