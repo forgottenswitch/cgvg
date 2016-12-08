@@ -3,14 +3,14 @@ cgvg
 
 A [sack](https://github.com/sampson-chen/sack). Tries rg, ag, and then grep.
 
-Usage
------
 `cg ...` searches.
 Just `cg` prints the last search result.
 `vg N` goes to N-th occurence.
 
 Options could be put into a profile for later use as `cg -pPROF`.
-See `cg -h` for options to edit profiles.
+`cg -h` lists options to edit profiles.
+
+MIT license.
 
 Installation
 ------------
@@ -30,7 +30,3 @@ PATH="$PATH":"$HOME"/.cargo/bin
 PAGER=less
 EDITOR=vim
 ```
-
-License
--------
-MIT
