@@ -1,7 +1,7 @@
 cgvg
 ====
 
-A [Ripgrep](https://github.com/BurntSushi/ripgrep)-only [sack](https://github.com/sampson-chen/sack).
+A [sack](https://github.com/sampson-chen/sack). Tries rg, ag, and then grep.
 
 Usage
 -----
@@ -10,9 +10,7 @@ Just `cg` prints the last search result.
 `vg N` goes to N-th occurence.
 
 Options could be put into a profile for later use as `cg -pPROF`.
-`cg -p` lists profiles, `cg -pp` prints them.
-`cg -p+` adds options to profile, `-p-` removes them.
-`-p-rm` removes entire profile.
+See `cg -h` for options to edit profiles.
 
 Installation
 ------------
@@ -35,4 +33,4 @@ EDITOR=vim
 
 License
 -------
-MIT license.
+MIT
