@@ -66,6 +66,7 @@ line="${file_and_line#*
 
 if test ! -z "$file" -a ! -z "$line" -a _$((line)) = _"$line" ; then
   cd "$cwd" || exit 1
+  file="$(echo "$file" | sed -e 's=\\=/=g')"
   exec "${EDITOR:-vi}" "$file" +"$line"
 else
   echo "error: no such N - $n (try 'cg')"
