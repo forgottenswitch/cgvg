@@ -23,13 +23,9 @@ args_from_profile=""
 
 if test _"${1#-p}" != _"$1" ; then
   usage_p() {
-    echo "Usage: cg -p"
-    echo "       cg -pp [PROFILE]"
+    echo "Usage:"
+    echo "       cg -pp [PROFILE_TO_PRINT]"
     echo "       cg -pPROFILE_TO_USE ..."
-    echo "       cg -p+ PROFILE OPTION_TO_ADD..."
-    echo "       cg -p- PROFILE OPTION_TO_REMOVE..."
-    echo "       cg -p-rm PROFILE_TO_REMOVE..."
-    echo "       cg -p-mv OLD_PROFILE NEW_PROFILE"
     echo
   }
 
@@ -69,80 +65,10 @@ if test _"${1#-p}" != _"$1" ; then
     profilefile="$profiledir"/"$profile"
   }
 
-  case "$1" in
-    -p-rm)
-      # remove profiles
-      if test _$# = _0 ; then
-        usage_p
-        exit 1
-      fi
-      for profile ; do
-        set_profilefile
-        test_profile_exists
-        rm "$profilefile"
-      done
-      exit
-      ;;
-    -p-mv)
-      # move a profile
-      if test _$# != _2 ; then
-        usage_p
-        exit 1
-      fi
-      profile="$1"
-      set_profilefile
-      pfile1="$profilefile"
-      test_profile_exists
-      profile="$2"
-      set_profilefile
-      pfile2="$profilefile"
-      test_profile_exists_not
-      mv "$pfile1" "$pfile2"
-      exit
-      ;;
-  esac
-
   profile_command="$1"
   shift
 
-  shift_profile() {
-    profile="$1"
-    if test $# -lt 1 ; then
-      usage_p
-      exit 1
-    fi
-    shift
-  }
-
   case "$profile_command" in
-    -p-) # remove options from profile
-      shift_profile
-      set_profilefile
-      s_prog=""
-      for arg ; do
-        # escape slashes
-        arg=$(echo "$arg" | sed -e 's|/|\x2f|')
-        # put escaped $arg into sed regex
-        s_prog="$s_prog
-          /^$arg\$/ D;
-          "
-      done
-      test_profile_exists
-      sed -i -e "$s_prog" "$profilefile"
-      exit
-      ;;
-    -p+) # add options to profile
-      shift_profile
-      set_profilefile
-      mkdir -p "$profiledir"
-      test -e "$profilefile" || printf '' > "$profilefile"
-      for arg ; do
-        if ! grep -q -F "$arg" "$profilefile" ; then
-          echo "$arg" >> "$profilefile"
-        fi
-      done
-      exit
-      ;;
     -pp) # print profiles
       print_profile() {
         echo "$1:"
