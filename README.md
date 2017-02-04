@@ -3,12 +3,11 @@ cgvg
 
 A [sack](https://github.com/sampson-chen/sack). Tries rg, ag, and then grep.
 
-`cg ...` searches.
-Just `cg` prints the last search result.
-`vg N` goes to N-th occurence.
+`cg ...` searches, `vg N` goes to occurence.
 
-Options could be put into a profile for later use as `cg -pPROF`.
-`cg -h` lists options to edit profiles.
+Arguments could be stored in `~/.config/cgvg/{rg,ag,grep}/{Profile_name}`,
+one per line (no quoting), and recalled as `cg -p{Profile_name}`,
+or printed with `cg -pp`.
 
 MIT license.
 
