@@ -68,11 +68,27 @@ if test _"${1#-p}" != _"$1" ; then
   profile_command="$1"
   shift
 
+  read_profile() {
+    local args_from_profile
+    # quote the lines of profile
+    args_from_profile=$(
+      awk '
+        {
+          gsub("'"'"'", "&\"&\"&")
+          printf " '"'"'" $0 "'"'"'"
+        }
+      ' "${profiledir}/$1"
+    )
+    # strip trailing backslash
+    args_from_profile="${args_from_profile% \\}"
+    echo "$args_from_profile"
+  }
+
   case "$profile_command" in
     -pp) # print profiles
       print_profile() {
         echo "$1:"
-        sed -e 's/^/  /' "$profiledir"/"$1"
+        read_profile "$1" | sed -e 's/^/  /'
       }
       if test _$# = _0 ; then
         ls "$profiledir" |
@@ -89,18 +105,8 @@ if test _"${1#-p}" != _"$1" ; then
       ;;
     *)
       profile="${profile_command#-p}"
+      args_from_profile="$(read_profile "$profile")"
       set_profilefile
-      # quote the lines of profile
-      args_from_profile=$(
-        awk '
-          {
-            gsub("'"'"'", "&\"&\"&")
-            printf " '"'"'" $0 "'"'"'"
-          }
-        ' "$profilefile"
-      )
-      # strip trailing backslash
-      args_from_profile="${args_from_profile% \\}"
       ;;
   esac
 fi
