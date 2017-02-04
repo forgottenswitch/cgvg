@@ -16,8 +16,6 @@ For example, to make rg ignore changelogs, put the following into `~/.config/cgv
 ```
 and run as `cg -pNoLogs`
 
-MIT license.
-
 Installation
 ------------
 - Symlink `cg.sh` and `vg.sh` into `~/bin`:

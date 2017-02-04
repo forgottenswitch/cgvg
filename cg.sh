@@ -1,4 +1,6 @@
 #!/bin/sh
+# Copyright 2016 Mihail Konev
+# MIT license.
 
 stashfile=/tmp/.cgvg."$USER"
 
