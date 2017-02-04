@@ -9,6 +9,13 @@ Arguments could be stored in `~/.config/cgvg/{rg,ag,grep}/{Profile_name}`,
 one per line (no quoting), and recalled as `cg -p{Profile_name}`,
 or printed with `cg -pp`.
 
+For example, to make rg ignore changelogs, put the following into `~/.config/cgvg/rg/NoLogs`:
+```
+-g
+!*ChangeLog*
+```
+and run as `cg -pNoLogs`
+
 MIT license.
 
 Installation
