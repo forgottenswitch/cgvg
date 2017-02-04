@@ -17,6 +17,10 @@ fi
 
 # Determine the grep tool
 for grepper in rg ag grep; do
+  # Do not ripgrep on cygwin
+  if test ! -z "$ORIGINAL_PATH" -a _"$grepper" = _rg ; then
+    continue;
+  fi
   type "$grepper" >/dev/null 2>&1 && break
 done
 profiledir="$HOME/.config/cgvg/$grepper"
