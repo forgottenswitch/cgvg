@@ -16,7 +16,7 @@ if test _0 = _"$#" ; then
 fi
 
 # Determine the grep tool
-for grepper in rg ag grep; do
+for grepper in "$CG" rg ag grep; do
   # Do not ripgrep on cygwin
   if test ! -z "$ORIGINAL_PATH" -a _"$grepper" = _rg ; then
     continue;

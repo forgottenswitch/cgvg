@@ -1,7 +1,7 @@
 cgvg
 ====
 
-A [sack](https://github.com/sampson-chen/sack). Tries rg, ag, and then grep.
+A [sack](https://github.com/sampson-chen/sack). Tries $CG, rg, ag, and then grep.
 
 `cg ...` searches, `vg N` goes to occurence.
 
