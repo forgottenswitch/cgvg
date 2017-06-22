@@ -1,9 +1,12 @@
 cgvg
 ====
 
-A [sack](https://github.com/sampson-chen/sack). Tries $CG, rg, ag, and then grep.
-
+A [sack](https://github.com/sampson-chen/sack).
 `cg ...` searches, `vg N` goes to occurence.
+
+Default grep tool name is read from `~/.config/cgvg/grepper`.
+It could be temporarily overridden with `CG` environment variable.
+Then, `rg`, `ag`, and `grep` would be tried.
 
 Arguments could be stored in `~/.config/cgvg/{rg,ag,grep}/{Profile_name}`,
 one per line (no quoting), and recalled as `cg -p{Profile_name}`,

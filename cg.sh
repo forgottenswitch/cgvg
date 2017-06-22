@@ -3,6 +3,7 @@
 # MIT license.
 
 stashfile=/tmp/.cgvg."$USER"
+configdir="$HOME/.config/cgvg"
 
 pager_flags=""
 PAGER="${PAGER:-less}"
@@ -15,11 +16,13 @@ if test _0 = _"$#" ; then
   exit
 fi
 
+preferred_grepper="$(cat "$configdir/grepper" 2>/dev/null)"
+
 # Determine the grep tool
-for grepper in "$CG" rg ag grep; do
+for grepper in "$CG" $preferred_grepper rg ag grep; do
   type "$grepper" >/dev/null 2>&1 && break
 done
-profiledir="$HOME/.config/cgvg/$grepper"
+profiledir="$configdir/$grepper"
 
 args_from_profile=""
 
