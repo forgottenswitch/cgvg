@@ -173,11 +173,11 @@ examine_options() {
       true
     else
       #echo "- tail"
+      tail_arg_count=$((tail_arg_count+1))
       if test $((tail_arg_count)) -gt 1 ; then
         dot_needed=n
         break
       fi
-      tail_arg_count=$((tail_arg_count+1))
     fi
     examine_arg
     #echo "  ex: $in_arg"
